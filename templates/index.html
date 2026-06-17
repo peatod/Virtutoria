@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+            footer,
+            header,
+            main {
+                border: 6px;
+                margin: 5px;
+                padding: 10px;
+                max-width: 1600px;
+            }
+
+            header,
+            main {
+                position: sticky;
+                border-radius: 5px;
+                padding: 32px;
+            }
+
+            textarea {
+                resize: none;
+                border-radius: 15px;
+                padding: 8px 16px;
+            }
+
+            footer {
+                display: flex;
+                flex-direction: column;
+                background-color: slategray;
+            }
+
+            .sent {
+                border-radius: 0px 15px 15px 15px;
+                background-color: lightseagreen;
+                align-self: flex-start;
+            }
+
+            .received {
+                border-radius: 15px 0px 15px 15px;
+                align-self: flex-end;
+                text-align: right;
+                background-color: lightblue;
+            }
+
+            .sent,
+            .received {
+                padding: 8px 16px;
+                max-width: 69%;
+                word-break: break-word;
+            }
+        </style>
+    </head>
+
+    <body style="background-color: lightslategray">
+        <header style="text-align: center; background-color: lightskyblue">
+            <h1 style="font-size: 48px">Virtutoria</h1>
+            <select>
+                <option>Padrão</option>
+                <option>Matemático</option>
+                <option>Programador</option>
+            </select>
+        </header>
+
+        <main
+            style="
+                display: flex;
+                justify-content: center;
+                background-color: lightgreen;
+            "
+        >
+            <textarea
+                id="msg"
+                cols="60"
+                rows="4"
+                placeholder="Escreva aqui sua mensagem..."
+            ></textarea>
+            <button id="envBtn" style="border-radius: 15px" onclick="enviar()">
+                Enviar
+            </button>
+        </main>
+
+        <footer id="hist"></footer>
+    </body>
+
+    <script>
+        const input = document.getElementById("msg");
+        const hist = document.getElementById("hist");
+        input.addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById("envBtn").click();
+            }
+        });
+
+        function enviar() {
+            if (input.value === "") return 0; // se não há texto escrito, não faz nada
+
+            let msg = document.createElement("p"); // cria elemento de parágrafo que conterá mensagem do usuário
+            msg.textContent = input.value; // grava o texto do usuário no elemento
+            msg.className = "sent"; // define a classe do elemento para que seja estilizado
+
+            input.value = ""; // apaga a caixa de texto para que
+            // uma nova mensagem possa ser escrita
+            hist.appendChild(msg); // adiciona o elemento ao histórico de mensagens
+            hist.appendChild(incitar(msg)); // adiciona elemento que será criado na função incitar ao histórico
+        }
+
+        function incitar(prompt) {
+            // envia a mensagem ao modelo e retorna a resposta
+            let resp = document.createElement("p"); // cria elemento de parágrafo que conterá mensagem do modelo
+            const myHeaders = new Headers();
+            let raw = JSON.stringify({
+                // JSON para a requisição
+                model: "granite4.1",
+                prompt: prompt,
+            });
+            let requestOptions = {
+                method: "POST",
+                headers: myHeaders,
+                body: raw,
+                redirect: "follow",
+            };
+            resp.className = "received"; //define a classe do elemento para que seja estilizado
+            myHeaders.append("Content-Type", "application/json");
+            fetch("/", requestOptions)
+                .then((response) => response.json())
+                .then((result) => console.log(result))
+                .catch((error) => console.error(error));
+
+            return resp;
+        }
+    </script>
+</html>
