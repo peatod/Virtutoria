@@ -103,7 +103,7 @@
             input.value = ""; // apaga a caixa de texto para que
             // uma nova mensagem possa ser escrita
             hist.appendChild(msg); // adiciona o elemento ao histórico de mensagens
-            hist.appendChild(incitar(msg)); // adiciona elemento que será criado na função incitar ao histórico
+            hist.appendChild(incitar(input.value)); // adiciona elemento que será criado na função incitar ao histórico
         }
 
         function incitar(prompt) {
@@ -112,7 +112,7 @@
             const myHeaders = new Headers();
             let raw = JSON.stringify({
                 // JSON para a requisição
-                model: "granite4.1",
+                model: "granite4.1:8b",
                 prompt: prompt,
             });
             let requestOptions = {
@@ -125,7 +125,10 @@
             myHeaders.append("Content-Type", "application/json");
             fetch("/", requestOptions)
                 .then((response) => response.json())
-                .then((result) => console.log(result))
+                .then((result) => {
+                    console.log(result);
+                    hist.appendChild(result.message);
+                })
                 .catch((error) => console.error(error));
 
             return resp;
